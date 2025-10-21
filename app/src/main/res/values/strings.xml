@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Aware</string>
+    <string name="app_name">Notifile</string>
+    <string name="onboarding_heading_1">All Your Messages in One Place</string>
+    <string name="onboarding_heading_2">Take Control of Your Inbox</string>
+    <string name="onboarding_heading_3">Design Your Perfect View</string>
+
+    <string name="onboarding_description_1">Say goodbye to scattered conversations. Access SMS, emails, and more from a single, intuitive dashboard—streamlining your communication like never before.</string>
+    <string name="onboarding_description_2">Organize, search, and act on your messages with ease. Filter by category, reply in a tap, or archive what you don’t need—communication, your way.</string>
+    <string name="onboarding_description_3">Choose how you see your messages—list, grid, or cards. Customize the layout to fit your style and make every glance productive.</string>
+
 </resources>
