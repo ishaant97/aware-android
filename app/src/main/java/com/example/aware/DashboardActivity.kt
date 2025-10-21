@@ -1,35 +1,20 @@
 package com.example.aware
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.aware.utils.FirstLaunchHelper
-import kotlinx.coroutines.Dispatchers.Main
-import kotlin.jvm.java
 
-class MainActivity : AppCompatActivity() {
+class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_dashboard)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-        }
-
-        if (FirstLaunchHelper.isFirstLaunch(this)) {
-            FirstLaunchHelper.setFirstLaunchFlag(this)
-            val intent = Intent(this, OnBoardingActivity::class.java)
-            startActivity(intent);
-            finish()
-        }else{
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent);
-            finish()
         }
     }
 }
