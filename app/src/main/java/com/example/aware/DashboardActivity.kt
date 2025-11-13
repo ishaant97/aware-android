@@ -1,11 +1,19 @@
 package com.example.aware
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,6 +48,7 @@ class DashboardActivity : AppCompatActivity() {
     private var deletedNotification: NotificationEntity? = null
     private var deletedPosition: Int = -1
     private var isHandlingDelete = false
+
 
 
 
@@ -145,37 +154,132 @@ class DashboardActivity : AppCompatActivity() {
             }
 
             // Show snackbar with undo option
-            val snackbar = Snackbar.make(mainRecyclerView, "Notification deleted", Snackbar.LENGTH_LONG)
-                .setAction("UNDO") {
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            // First add to database
-                            deletedNotification?.let {
-                                repository.addNotification(it)
+            val snackbar =
+                Snackbar.make(mainRecyclerView, "Notification deleted", Snackbar.LENGTH_LONG)
+                    .setAction("UNDO") {
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                // First add to database
+                                deletedNotification?.let {
+                                    repository.addNotification(it)
+                                }
                             }
-                        }
 
-                        // Then update UI directly for immediate feedback
-                        withContext(Dispatchers.Main) {
-                            deletedNotification?.let {
-                                // Insert at correct position in adapter
-                                adapter.insertItem(it, deletedPosition)
+                            // Then update UI directly for immediate feedback
+                            withContext(Dispatchers.Main) {
+                                deletedNotification?.let {
+                                    // Insert at correct position in adapter
+                                    adapter.insertItem(it, deletedPosition)
 
-                                // Scroll to the position if needed
-                                mainRecyclerView.smoothScrollToPosition(deletedPosition)
+                                    // Scroll to the position if needed
+                                    mainRecyclerView.smoothScrollToPosition(deletedPosition)
+                                }
                             }
                         }
                     }
-                }
-                .addCallback(object : Snackbar.Callback() {
-                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                        // Reset our handling state when snackbar disappears
-                        isHandlingDelete = false
-                        deletedNotification = null
-                        deletedPosition = -1
-                    }
-                })
+                    .addCallback(object : Snackbar.Callback() {
+                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                            // Reset our handling state when snackbar disappears
+                            isHandlingDelete = false
+                            deletedNotification = null
+                            deletedPosition = -1
+                        }
+                    })
 
             snackbar.show()
         }
+
+        override fun onChildDraw(
+            c: Canvas,
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            dX: Float,
+            dY: Float,
+            actionState: Int,
+            isCurrentlyActive: Boolean
+        ) {
+            val itemView = viewHolder.itemView
+            val context = recyclerView.context
+            val deleteIcon = ContextCompat.getDrawable(context, R.drawable.baseline_delete_outline_24)
+            val paint = Paint()
+
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+            // Draw only if swiping left
+            if (dX < 0) {
+                // Calculate dynamic color intensity
+                val swipeThreshold = itemView.width / 3
+                val alpha = (255 * (minOf(abs(dX), swipeThreshold.toFloat()) / swipeThreshold)).toInt()
+                paint.color = Color.argb(minOf(alpha, 180), 255, 59, 48) // Red with capped alpha
+
+                val backgroundRect = RectF(
+                    itemView.right + dX, itemView.top.toFloat(),
+                    itemView.right.toFloat(), itemView.bottom.toFloat()
+                )
+                c.drawRect(backgroundRect, paint)
+
+                // Draw delete icon
+                deleteIcon?.let {
+                    val iconSize = it.intrinsicHeight
+                    val iconMargin = (itemView.height - iconSize) / 2
+                    val iconLeft = itemView.right - iconSize - iconMargin
+                    val iconTop = itemView.top + iconMargin
+                    val iconRight = itemView.right - iconMargin
+                    val iconBottom = iconTop + iconSize
+
+                    // Only draw icon when dragged past threshold
+                    if (abs(dX) > iconSize * 2) {
+                        it.alpha = minOf(alpha, 255)
+                        it.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                        it.draw(c)
+                    }
+                }
+
+                // Vibrate only once when the delete icon appears
+                if (!hasVibrated && abs(dX) > itemView.width / 3) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.EFFECT_TICK))
+                    } else {
+                        vibrator.vibrate(50) // Deprecated in API 26+, but needed for older devices
+                    }
+                    hasVibrated = true
+                }
+            }
+
+            if (dX == 0f) {
+                hasVibrated = false // Reset when user swipes back
+            }
+
+            // Make sure to keep scale at 1.0 to avoid lingering transform effects
+            itemView.scaleX = 1.0f
+            itemView.scaleY = 1.0f
+
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        }
+    }
+
+
+    // Helper function for absolute value
+    private fun abs(value: Float): Float = if (value < 0) -value else value
+
+    override fun onResume() {
+        super.onResume()
+        // Reset state handling flags
+        isHandlingDelete = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Clean up thread executor
+        (adapter as? NotificationAdapter)?.let {
+            try {
+                val field = NotificationAdapter::class.java.getDeclaredField("diffExecutor")
+                field.isAccessible = true
+                val executor = field.get(it) as java.util.concurrent.ExecutorService
+                executor.shutdown()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
