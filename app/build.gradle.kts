@@ -1,10 +1,12 @@
 import org.gradle.kotlin.dsl.implementation
 
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.devtools.ksp") version "2.0.21-1.0.25"
 }
+
 
 android {
     namespace = "com.example.aware"
@@ -18,6 +20,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
