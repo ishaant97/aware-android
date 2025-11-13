@@ -5,7 +5,7 @@ import com.example.aware.database.RecentlyClearedNotificationDao
 import com.example.aware.database.RecentlyClearedNotificationEntity
 
 
-class RecentNotificationRepository(private val dao: RecentlyClearedNotificationDao) {
+class RecentNotificationRepository(val dao: RecentlyClearedNotificationDao) {
 
     val recentNotifications: LiveData<MutableList<RecentlyClearedNotificationEntity>> = dao.getAllRecentlyCleared()
 

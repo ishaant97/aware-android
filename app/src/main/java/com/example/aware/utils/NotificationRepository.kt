@@ -5,7 +5,7 @@ import com.example.aware.database.NotificationDao
 import com.example.aware.database.NotificationEntity
 import java.time.LocalDateTime
 
-class NotificationRepository(private val dao: NotificationDao) {
+class NotificationRepository(val dao: NotificationDao) {
 
     val notifications: LiveData<MutableList<NotificationEntity>> = dao.getNotifications()
 

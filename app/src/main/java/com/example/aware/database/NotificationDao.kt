@@ -18,6 +18,10 @@ interface NotificationDao {
     @Query("SELECT * FROM notifications ORDER BY time DESC")
     fun getNotifications() : LiveData<MutableList<NotificationEntity>>
 
+    @Query("SELECT * FROM notifications ORDER BY time DESC")
+    suspend fun getNotificationsList(): List<NotificationEntity>
+
+
     @Query("DELETE FROM notifications")
     suspend fun deleteAllNotifications()
 
