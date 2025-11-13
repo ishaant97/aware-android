@@ -41,8 +41,8 @@ class OnBoardingActivity : AppCompatActivity() {
         val mainLayout = findViewById<View>(R.id.main)
         mainLayout.setPadding(0, getStatusBarHeight(this), 0, 0)
 
-        continueBtn = findViewById<Button>(R.id.btn_continue)
-        skipBtn = findViewById<Button>(R.id.btn_skip)
+        continueBtn = findViewById(R.id.btn_continue)
+        skipBtn = findViewById(R.id.btn_skip)
 
 
         continueBtn.setOnClickListener(View.OnClickListener {
@@ -66,8 +66,8 @@ class OnBoardingActivity : AppCompatActivity() {
             finish()
         })
 
-        slideViewPager = findViewById<View>(R.id.slideViewPager) as ViewPager
-        dotsLinearLayout = findViewById<View>(R.id.indicator_layout) as LinearLayout
+        slideViewPager = findViewById(R.id.slideViewPager)
+        dotsLinearLayout = findViewById(R.id.indicator_layout)
 
         onboardingViewPagerAdapter = OnboardingViewPagerAdapter(this)
 

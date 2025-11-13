@@ -14,6 +14,10 @@ interface RecentlyClearedNotificationDao {
     @Query("SELECT * FROM recently_cleared_notifications ORDER BY clearedAt DESC LIMIT 5")
     fun getAllRecentlyCleared(): LiveData<MutableList<RecentlyClearedNotificationEntity>>
 
+    @Query("SELECT * FROM recently_cleared_notifications ORDER BY time DESC")
+    suspend fun getRecentlyClearedList(): List<RecentlyClearedNotificationEntity>
+
+
     @Query("DELETE FROM recently_cleared_notifications")
     suspend fun deleteAllNotifications()
 }
