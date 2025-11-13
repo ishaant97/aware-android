@@ -27,6 +27,7 @@ import com.example.aware.utils.NotificationRepository
 import com.example.aware.utils.RecentNotificationRepository
 import com.example.aware.utils.SummaryAdapter
 import com.example.aware.utils.SummaryItem
+import com.google.ai.client.generativeai.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,8 +60,6 @@ class AiSummaryActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnRefresh).setOnClickListener {
             fetchSummary()
         }
-
-
     }
 
     private fun fetchSummary() {
@@ -94,10 +93,6 @@ class AiSummaryActivity : AppCompatActivity() {
         }
     }
 
-}
-
-
-
     private fun parseSummary(summary: String): List<SummaryItem> {
         val items = mutableListOf<SummaryItem>()
 
@@ -126,7 +121,7 @@ class AiSummaryActivity : AppCompatActivity() {
         return try {
             val client = GenerativeModel(
                 modelName = "gemini-2.0-flash",
-                apiKey = "AIzaSyCVb5E1hFveOZvh8-8jGTqg6yKeNQ6jOEo"
+                apiKey = "AIzaSyBdh299-ns_izVXrpu_vUxEncJyE44wLOk"
             )
 
             val prompt = """
@@ -202,3 +197,4 @@ $text
             "Error summarizing notifications: ${e.localizedMessage}"
         }
     }
+}
