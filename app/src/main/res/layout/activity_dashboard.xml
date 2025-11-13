@@ -29,12 +29,12 @@
             android:id="@+id/switch_button_notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:showText="false"
-            android:textOff="OFF"
             android:textOn="ON"
+            android:textOff="OFF"
             android:thumbTint="#000102"
             android:trackTint="#4B4A4A"
+            android:showText="false"
+            android:padding="10dp"
 
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
